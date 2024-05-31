@@ -3,29 +3,58 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Product } from '../common/product';
 import { map } from 'rxjs/operators';
+import { ProductCategory } from '../common/product-category';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProductService {
   private baseUrl = 'http://localhost:8080/api/products';
+  private categoryUrl = 'http://localhost:8080/api/product-category';
 
   // dependency injection
-  // By declaring and injecting the httpClient property in the constructor, 
+  // By declaring and injecting the httpClient property in the constructor,
   // Angular automatically creates and assigns an instance of HttpClient to that property
   //  when creating an instance of the ProductService class.
   constructor(private httpClient: HttpClient) {}
 
+  private getProducts(searchUrl: string): Observable<Product[]> {
+    return this.httpClient
+      .get<GetResponse>(searchUrl)
+      .pipe(map((response) => response._embedded.products));
+  }
+
   getProductList(theCategoryId: number): Observable<Product[]> {
     const url = `${this.baseUrl}/search/findByCategoryId?id=${theCategoryId}`;
+    return this.getProducts(url);
+  }
+
+  getProductCategories(): Observable<ProductCategory[]> {
     return this.httpClient
-      .get<GetResponse>(url)
-      .pipe(map((response) => response._embedded.products));
+      .get<GetResponseProductCategory>(this.categoryUrl)
+      .pipe(map((response) => response._embedded.productCategory));
+  }
+
+  searchProducts(theKeyword: string): Observable<Product[]> {
+    const searchUrl = `${this.baseUrl}/search/findByNameContaining?name=${theKeyword}`;
+    return this.getProducts(searchUrl);
   }
 }
 
-// represent the structure of the response received from the server
+// interface for represent the structure of the response received from the server
 interface GetResponse {
+  _embedded: {
+    products: Product[];
+  };
+}
+
+interface GetResponseProductCategory {
+  _embedded: {
+    productCategory: ProductCategory[];
+  };
+}
+
+interface GetResponseProducts {
   _embedded: {
     products: Product[];
   };
