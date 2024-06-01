@@ -39,6 +39,11 @@ export class ProductService {
     const searchUrl = `${this.baseUrl}/search/findByNameContaining?name=${theKeyword}`;
     return this.getProducts(searchUrl);
   }
+
+  getProduct(productId: number) {
+    const getProductUrl = `${this.baseUrl}/${productId}`;
+    return this.httpClient.get<Product>(getProductUrl);
+  }
 }
 
 // interface for represent the structure of the response received from the server
