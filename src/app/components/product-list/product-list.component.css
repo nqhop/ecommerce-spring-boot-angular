@@ -1,7 +1,15 @@
-/* .img-responsive{
-    cursor: pointer;
-}*/
-
 .product-details{
     text-decoration: none;
 } 
+
+.footer-pagination{
+    display: flex;
+}
+
+ngb-pagination {
+    margin-left: auto;
+}
+
+.footer-pagination > *{
+    margin-right: 10px;
+}

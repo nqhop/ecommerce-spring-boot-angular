@@ -24,5 +24,16 @@
                 </div>
             </div>
         </div>
+        <div class="footer-pagination">
+            <ngb-pagination [(page)]="thePageNumber" [pageSize]="thePageSize" [collectionSize]="theTotoalElements"
+                [maxSize]="5" [boundaryLinks]="true" (pageChange)="listProducts()" />
+            <span>Page Size</span>
+            <select #pageSize (change)="updatePageSize(+pageSize.value)">
+                <option value="5" selected="true">5</option>
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+            </select>
+        </div>
     </div>
 </div>
