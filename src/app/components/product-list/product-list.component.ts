@@ -19,6 +19,8 @@ export class ProductListComponent {
   thePageSize: number = 5;
   theTotoalElements: number = 0;
 
+  thePreviousKeyWord: string = '';
+
   constructor(
     private productService: ProductService,
     private route: ActivatedRoute,
@@ -41,15 +43,18 @@ export class ProductListComponent {
 
   handleSearchProducts() {
     const theKeyword: string = this.route.snapshot.paramMap.get('keyword')!;
+    if (this.thePreviousKeyWord != theKeyword) {
+      this.thePageNumber = 1;
+    }
+
+    this.thePreviousKeyWord = theKeyword;
     this.productService
       .searchProductsPaginate(
         this.thePageNumber - 1,
         this.thePageSize,
         theKeyword
       )
-      .subscribe((data) => {
-        this.products = data;
-      });
+      .subscribe(this.processResult());
   }
   handleListProducts() {
     const hasCategoryId: boolean = this.route.snapshot.paramMap.has('id');
@@ -81,16 +86,20 @@ export class ProductListComponent {
         this.thePageSize,
         this.currentCategoryId
       )
-      .subscribe((data) => {
-        this.products = data._embedded.products;
-        this.thePageNumber = data.page.number + 1;
-        this.thePageSize = data.page.size;
-        this.theTotoalElements = data.page.totalElements;
-      });
+      .subscribe(this.processResult());
   }
 
   updatePageSize(pageSize: number) {
     this.thePageSize = pageSize;
     this.handleListProducts();
+  }
+
+  processResult() {
+    return (data: any) => {
+      this.products = data._embedded.products;
+      this.thePageNumber = data.page.number + 1;
+      this.thePageSize = data.page.size;
+      this.theTotoalElements = data.page.totalElements;
+    };
   }
 }
