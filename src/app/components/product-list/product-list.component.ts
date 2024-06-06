@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { ProductService } from '../../services/product.service';
 import { Product } from '../../common/product';
 import { ActivatedRoute, Router } from '@angular/router';
+import { CartServiceService } from '../../services/cart-service.service';
 
 @Component({
   selector: 'app-product-list',
@@ -23,6 +24,7 @@ export class ProductListComponent {
 
   constructor(
     private productService: ProductService,
+    private cartService: CartServiceService,
     private route: ActivatedRoute,
     private router: Router
   ) {}
@@ -101,5 +103,11 @@ export class ProductListComponent {
       this.thePageSize = data.page.size;
       this.theTotoalElements = data.page.totalElements;
     };
+  }
+
+  // Shopping cart
+  addToCart(product: Product) {
+    console.log(product.name);
+    this.cartService.addTocart(product);
   }
 }
