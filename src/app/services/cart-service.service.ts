@@ -14,18 +14,51 @@ export class CartServiceService {
   totalQuantity = new Subject<number>();
   constructor() {}
 
-  addTocart(product: Product) {
+  addTocart(cartItem: CartItem) {
     const indexOfCartItem = this.cartItems.findIndex(
-      (cartItem) => cartItem.id === product.id
+      (tempCartItem) => tempCartItem.id === cartItem.id
     );
     if (indexOfCartItem == -1) {
-      this.cartItems.push(new CartItem(product));
+      this.cartItems.push(cartItem);
     } else {
       this.cartItems[indexOfCartItem].quantity += 1;
     }
-    this.tempTotalQuantity += 1;
-    this.tempTotalPrice += product.unitPrice;
+    this.updateTotalPriceAndTotalQuantity(cartItem);
+  }
+
+  updateTotalPriceAndTotalQuantity(
+    cartItem: CartItem,
+    isAdd: Boolean = true,
+    isRemove: Boolean = false
+  ) {
+    if (isRemove) {
+      this.tempTotalQuantity -= cartItem.quantity;
+      this.tempTotalPrice -= cartItem.quantity * cartItem.unitPrice;
+    } else if (isAdd) {
+      this.tempTotalQuantity += 1;
+      this.tempTotalPrice += cartItem.unitPrice;
+    } else {
+      this.tempTotalQuantity--;
+      this.tempTotalPrice -= cartItem.unitPrice;
+    }
     this.totalPrice.next(this.tempTotalPrice);
     this.totalQuantity.next(this.tempTotalQuantity);
+  }
+
+  dropItemFromCart(cartItem: CartItem, isRemove: Boolean = false) {
+    const indexOfCartItem = this.cartItems.findIndex(
+      (tempCartItem) => tempCartItem.id === cartItem.id
+    );
+    if (isRemove) {
+      this.cartItems.splice(indexOfCartItem, 1);
+      this.updateTotalPriceAndTotalQuantity(cartItem, undefined, true);
+      return;
+    }
+    if (this.cartItems[indexOfCartItem].quantity == 1) {
+      this.cartItems.splice(indexOfCartItem, 1);
+    } else {
+      this.cartItems[indexOfCartItem].quantity--;
+    }
+    this.updateTotalPriceAndTotalQuantity(cartItem, false);
   }
 }
