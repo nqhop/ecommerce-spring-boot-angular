@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormBuilder } from '@angular/forms';
+import { FormGroup, FormBuilder, FormGroupName } from '@angular/forms';
 import { ShopFormService } from '../../services/shop-form.service';
+import { Country } from '../../common/country';
+import { State } from '../../common/state';
 
 @Component({
   selector: 'app-checkout',
@@ -15,6 +17,10 @@ export class CheckoutComponent implements OnInit {
 
   creditCardYears: number[] = [];
   creditCardMonths: number[] = [];
+  countries: Country[] = [];
+
+  shippingAddressStates: State[] = [];
+  billingAddressStates: State[] = [];
 
   constructor(
     private formBuilder: FormBuilder,
@@ -65,6 +71,11 @@ export class CheckoutComponent implements OnInit {
     this.shopFormService.getCreditCardYears().subscribe((data) => {
       this.creditCardYears = data;
     });
+
+    // populate countries and state
+    this.shopFormService.getCountries().subscribe((data) => {
+      this.countries = data;
+    });
   }
 
   yearIsSelected() {
@@ -80,17 +91,35 @@ export class CheckoutComponent implements OnInit {
       });
   }
 
-  // copyShippingAddressToBillingAddress(event) {
+  getStates(formGroupName: string) {
+    const formGroup = this.checkoutFormGroup.get(formGroupName);
+    const countryCode: string = formGroup?.value.country.code;
 
-  //   if (event.target.checked) {
-  //     this.checkoutFormGroup.controls.billingAddress
-  //           .setValue(this.checkoutFormGroup.controls.shippingAddress.value);
-  //   }
-  //   else {
-  //     this.checkoutFormGroup.controls.billingAddress.reset();
-  //   }
+    this.shopFormService.getStates(countryCode).subscribe((data) => {
+      if (formGroupName === 'shippingAddress') {
+        this.shippingAddressStates = data;
+      } else {
+        this.billingAddressStates = data;
+      }
+      formGroup!.get('state')?.setValue(data[0]);
+      console.log('shippingAddressStates: ' + this.shippingAddressStates);
+    });
+  }
 
-  // }
+  copyShippingAddressToBillingAddress(event: Event) {
+    const ischecked = (<HTMLInputElement>event.target).checked;
+    if (ischecked) {
+      this.checkoutFormGroup.controls['billingAddress'].setValue(
+        this.checkoutFormGroup.controls['shippingAddress'].value
+      );
+      // bug fix for states
+      this.billingAddressStates = this.shippingAddressStates;
+    } else {
+      this.checkoutFormGroup.controls['billingAddress'].reset();
+      // bug fix for states
+      this.billingAddressStates = [];
+    }
+  }
 
   onSubmit() {
     console.log('Handling the submit button');
