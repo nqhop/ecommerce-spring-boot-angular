@@ -1,6 +1,9 @@
 package com.nqhop.ecommerce.config;
 
+import com.nqhop.ecommerce.entity.Country;
 import com.nqhop.ecommerce.entity.Product;
+import com.nqhop.ecommerce.entity.ProductCategory;
+import com.nqhop.ecommerce.entity.State;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.metamodel.EntityType;
 import org.springframework.context.annotation.Configuration;
@@ -24,11 +27,18 @@ public class MyDataRestConfig implements RepositoryRestConfigurer {
         HttpMethod[] theUnsupportedActions = {HttpMethod.PUT, HttpMethod.POST, HttpMethod.DELETE, HttpMethod.PATCH};
 
         // disable HTTP methods for Product: PUT, POST and DELETE
+        disableHttpMethod(Product.class, config, theUnsupportedActions);
+        disableHttpMethod(ProductCategory.class, config, theUnsupportedActions);
+        disableHttpMethod(Country.class, config, theUnsupportedActions);
+        disableHttpMethod(State.class, config, theUnsupportedActions);
+        exposeIds(config);
+    }
+
+    private static void disableHttpMethod(Class theClass, RepositoryRestConfiguration config, HttpMethod[] theUnsupportedActions) {
         config.getExposureConfiguration()
-                .forDomainType(Product.class)
+                .forDomainType(theClass)
                 .withItemExposure(((metdata, httpMethods) -> httpMethods.disable(theUnsupportedActions)))
                 .withCollectionExposure((metdata, httpMethods) -> httpMethods.disable(theUnsupportedActions));
-        exposeIds(config);
     }
 
     private void exposeIds(RepositoryRestConfiguration config) {
