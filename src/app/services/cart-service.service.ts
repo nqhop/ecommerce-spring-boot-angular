@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { CartItem } from '../common/cart-item.model';
 import { Product } from '../common/product';
-import { Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -10,8 +10,8 @@ export class CartServiceService {
   cartItems: CartItem[] = [];
   tempTotalPrice: number = 0;
   tempTotalQuantity: number = 0;
-  totalPrice = new Subject<number>();
-  totalQuantity = new Subject<number>();
+  totalPrice = new BehaviorSubject<number>(0);
+  totalQuantity = new BehaviorSubject<number>(0);
   constructor() {}
 
   addTocart(cartItem: CartItem) {
@@ -43,6 +43,14 @@ export class CartServiceService {
     }
     this.totalPrice.next(this.tempTotalPrice);
     this.totalQuantity.next(this.tempTotalQuantity);
+  }
+
+  resetCart(){
+    this.cartItems = [];
+    this.tempTotalPrice = 0;
+    this.tempTotalQuantity = 0;
+    this.totalPrice.next(0);
+    this.totalQuantity.next(0);
   }
 
   dropItemFromCart(cartItem: CartItem, isRemove: Boolean = false) {
